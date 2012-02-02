@@ -20,6 +20,10 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
+distance(Str1, Str2) when is_list(Str1) ->
+    distance(list_to_binary(Str1), Str2);
+distance(Str1, Str2) when is_list(Str2) ->
+    distance(Str1, list_to_binary(Str2));
 distance(Str1, Str2) ->
     elevenshtein_nif:distance(Str1, Str2).
 

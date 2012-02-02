@@ -1,24 +1,19 @@
-/*****************************************************/
-/*Function prototypes and libraries needed to compile*/
-/*****************************************************/
+/*****************************************/
+/*Implementation of Levenshtein distance */
+/*****************************************/
 
 #include <stdlib.h>
 #include <malloc.h>
 #include <string.h>
-int levenshtein_distance(char *s,char*t);
-int minimum(int a,int b,int c);
 
-/****************************************/
-/*Implementation of Levenshtein distance*/
-/****************************************/
+int minimum(int a, int b, int c);
 
-int levenshtein_distance(char *s,char*t)
-/*Compute levenshtein distance between s and t*/
-{
-  //Step 1
-  int k,i,j,n,m,cost,*d,distance;
-  n=strlen(s); 
-  m=strlen(t);
+/* Calcualate the distance.
+ * s,t - strings,
+ * n,m - lengths of s and t. */
+int levenshtein_distance_len(const char *s, int n, const char *t, int m) {
+  // Step 1
+  int k,i,j, cost, *d, distance;
   if(n!=0&&m!=0)
   {
     d=malloc((sizeof(int))*(m+1)*(n+1));

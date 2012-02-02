@@ -19,70 +19,41 @@
 #include <stdio.h>
 #include <string.h>
 
-extern int levenshtein_distance(char *s, char*t);;
+extern int levenshtein_distance_len (const char*, int, const char*, int);
 
-char * get_str_from_binary(ErlNifEnv* env, const ERL_NIF_TERM argv_b);
-char * get_str_from_list(ErlNifEnv* env, const ERL_NIF_TERM argv_b);
-char * get_str_from_term(ErlNifEnv* env, const ERL_NIF_TERM argv);
+// NIF-wrapper for distance calculation.
+// $1, $2 = binary()
+static ERL_NIF_TERM levenshtein_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ErlNifBinary s1, s2;
 
-// Distance calculation.
-// $1, $2 = binary() | string()
-static ERL_NIF_TERM levenshtein_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
-{
-        int ret;
-	char *s0, *s1;	
-	
-	s0 = get_str_from_term(env, argv[0]);
-	s1 = get_str_from_term(env, argv[1]);
-	
-	ret = levenshtein_distance(s0, s1);
+    if(!(enif_inspect_binary(env, argv[0], &s1) && enif_inspect_binary(env, argv[1], &s2))) {
+	return enif_make_badarg(env);
+    };
 
-	enif_free(s0);
-	enif_free(s1);
-	return enif_make_int(env, ret);
-	//return enif_make_badarg(env);
-}
-
-// depending on argument type (binary or list) call subfunctions
-char * get_str_from_term(ErlNifEnv* env, const ERL_NIF_TERM argv) {
-    char * s;
-    if (enif_is_binary(env, argv)) {
-	s = get_str_from_binary(env, argv);
-    } else {
-	if (enif_is_list(env, argv)) {
-	    s = get_str_from_list(env, argv);
-	}
-    }
-    return s;
-}
-
-// Get string from binary.
-// FIXME Currently, memcpy is used to extract strings because no \0 in the end.
-//	 But copying full string just to add a symbol to it is really bad idea.
-//	 It will be good to avoid using any memory copy.
-char * get_str_from_binary(ErlNifEnv* env, const ERL_NIF_TERM argv_b) {
-    ErlNifBinary bin;
-    enif_inspect_binary(env, argv_b, &bin);
-
-    char *s = enif_alloc(bin.size + 1);
-    strncpy(s, bin.data, bin.size);
-    *(s + bin.size) = '\0';
-
-    return s;
-}
-
-// Get string from list. 
-char * get_str_from_list(ErlNifEnv* env, const ERL_NIF_TERM argv_l) {
-    unsigned int len;
-    enif_get_list_length(env, argv_l, &len);
-    char * s = enif_alloc(len + 1);
-    enif_get_string(env, argv_l, s, len, ERL_NIF_LATIN1);
-    return s;
+    int d = levenshtein_distance_len((const char *)s1.data, s1.size, (const char *)s2.data, s2.size);
+    return enif_make_int(env, d);
 }
 
 
 static ErlNifFunc nif_funcs[] = {
-        {"distance", 2, levenshtein_nif}
+    {"distance", 2, levenshtein_nif}
 };
 
-ERL_NIF_INIT(elevenshtein_nif, nif_funcs, NULL, NULL, NULL, NULL);
+
+static int load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM load_info) {
+    return 0;
+}
+
+static int reload(ErlNifEnv* env, void** priv, ERL_NIF_TERM load_info) {
+    return load(env, priv, load_info);
+}
+
+static int upgrade(ErlNifEnv* env, void** priv, void** old_priv, ERL_NIF_TERM load_info) {
+    return 0;
+}
+
+static void unload(ErlNifEnv* env, void* priv) {
+    return;
+}
+
+ERL_NIF_INIT(elevenshtein_nif, nif_funcs, load, reload, upgrade, unload);
