@@ -1,3 +1,6 @@
+%% -*- mode: erlang;erlang-indent-level: 4;indent-tabs-mode: nil -*-
+%% ex: ft=erlang ts=4 sw=4 et
+
 %% Copyright 2012 Konstantin Nikiforov <helllamer@gmail.com>
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +15,11 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 
-%% -*- mode: erlang -*-
-
 {application, elevenshtein,
- [{description, "levenstein distance: C binding and implementation"},
+ [{description, "levenstein string distance for erlang: C binding"},
   {vsn, "1"},
   {modules, []},
   {registered, []},
-  {mod, {ebot_app, []}},
   {env, []},
 
   {applications, [kernel, stdlib]}
